@@ -1,13 +1,16 @@
 
 import { useEffect, useState } from 'react';
-import { Menu, Sun, Moon, Calendar } from 'lucide-react';
+import { Menu, Calendar } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NavigationBar } from './NavigationBar';
+import { ThemeToggle } from './ThemeToggle';
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/clerk-react";
 
 export const Header = () => {
   const [date, setDate] = useState<Date>(new Date());
   const [scrolled, setScrolled] = useState(false);
+  const { isSignedIn } = useUser();
   
   // Update date every minute
   useEffect(() => {
@@ -35,7 +38,7 @@ export const Header = () => {
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out py-4 px-6 ${
-        scrolled ? 'backdrop-blur-md bg-white/80 shadow-sm' : 'bg-transparent'
+        scrolled ? 'backdrop-blur-md bg-background/80 shadow-sm' : 'bg-transparent'
       }`}
     >
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -57,9 +60,24 @@ export const Header = () => {
             })}
           </div>
           
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Sun className="h-5 w-5" />
-          </Button>
+          <ThemeToggle />
+
+          {isSignedIn ? (
+            <UserButton afterSignOutUrl="/" />
+          ) : (
+            <div className="hidden sm:flex items-center space-x-2">
+              <SignInButton mode="modal">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button size="sm">
+                  Sign Up
+                </Button>
+              </SignUpButton>
+            </div>
+          )}
           
           <Sheet>
             <SheetTrigger asChild className="md:hidden">
@@ -70,6 +88,20 @@ export const Header = () => {
             <SheetContent side="right" className="sm:max-w-sm">
               <div className="mt-8 flex flex-col gap-6">
                 <NavigationBar vertical />
+                {!isSignedIn && (
+                  <div className="flex flex-col gap-2 mt-4">
+                    <SignInButton mode="modal">
+                      <Button variant="outline" className="w-full">
+                        Sign In
+                      </Button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                      <Button className="w-full">
+                        Sign Up
+                      </Button>
+                    </SignUpButton>
+                  </div>
+                )}
               </div>
             </SheetContent>
           </Sheet>
