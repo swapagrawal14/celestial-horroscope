@@ -15,11 +15,17 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Make sure to add VITE_CLERK_PUBLISHABLE_KEY to your .env file
+// Get the Clerk publishable key from .env
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-const App = () => (
-  <ClerkProvider publishableKey={publishableKey}>
+// Check if we have a valid publishable key (not the placeholder value or undefined)
+const isValidClerkKey = publishableKey && 
+  publishableKey !== "your_clerk_publishable_key_here" && 
+  publishableKey !== "undefined";
+
+const App = () => {
+  // Render app with or without Clerk based on key validity
+  const AppContent = () => (
     <ThemeProvider defaultTheme="light">
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
@@ -39,7 +45,16 @@ const App = () => (
         </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>
-  </ClerkProvider>
-);
+  );
+
+  // Only wrap with ClerkProvider if we have a valid key
+  return isValidClerkKey ? (
+    <ClerkProvider publishableKey={publishableKey}>
+      <AppContent />
+    </ClerkProvider>
+  ) : (
+    <AppContent />
+  );
+};
 
 export default App;
